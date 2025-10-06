@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Masaż</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            width: 33.333%;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 3px solid #3498db;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ecf0f1;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .quiz-sets {
+            list-style: none;
+        }
+
+        .quiz-set {
+            background: rgba(52, 152, 219, 0.2);
+            margin-bottom: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quiz-set:hover {
+            background: rgba(52, 152, 219, 0.4);
+            transform: translateX(5px);
+            border-color: #3498db;
+        }
+
+        .quiz-set.active {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+
+        .quiz-set-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-set-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings-icon {
+            width: 40px;
+            height: 40px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .settings-icon:hover {
+            background: #e67e22;
+            transform: rotate(90deg);
+        }
+
+        .quiz-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 245, 251, 0.9) 100%);
+        }
+
+        .question-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-option {
+            background: rgba(236, 240, 241, 0.6);
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .answer-option:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .answer-option.selected {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: #3498db;
+            color: #2c3e50;
+        }
+
+        .answer-option.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .answer-option.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .answer-letter {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .answer-option.correct .answer-letter {
+            background: #27ae60;
+        }
+
+        .answer-option.incorrect .answer-letter {
+            background: #e74c3c;
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #1f4e79);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .progress-info {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+            
+            .quiz-sets {
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+            }
+            
+            .quiz-set {
+                min-width: 150px;
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Zestawy Pytań</h2>
+            <ul class="quiz-sets">
+                <li class="quiz-set active" onclick="selectQuizSet(0)">
+                    <div class="quiz-set-item">
+                        <div class="quiz-set-icon">1</div>
+                        <div>
+                            <div style="font-weight: bold;">Masaż - Podstawy</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">10 pytań</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="quiz-set" onclick="selectQuizSet(1)">
+                    <div class="quiz-set-item">
+                        <div class="quiz-set-icon">2</div>
+                        <div>
+                            <div style="font-weight: bold;">Anatomia</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Wkrótce</div>
+                        </div>
+                    </div>
+                </li>
+                <li class="quiz-set" onclick="selectQuizSet(2)">
+                    <div class="quiz-set-item">
+                        <div class="quiz-set-icon">3</div>
+                        <div>
+                            <div style="font-weight: bold;">Fizjologia</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Wkrótce</div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <div class="user-profile">
+                    <div class="user-avatar">U</div>
+                    <span style="font-weight: bold; color: #2c3e50;">Użytkownik</span>
+                </div>
+                <div class="settings-icon" onclick="openSettings()" title="Ustawienia">
+                    ⚙️
+                </div>
+            </div>
+            
+            <div class="quiz-area">
+                <div class="question-container" id="question-container">
+                    <!-- Pytania będą tutaj generowane przez JavaScript -->
+                </div>
+                
+                <div class="quiz-controls">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prev-btn">← Poprzednie</button>
+                    <div class="progress-info" id="progress-info">Pytanie 1 z 10</div>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn">Następne →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Bierny transport komórkowy polega na przenikaniu jonów",
+                options: [
+                    "sodu i potasu do wnętrza komórki.",
+                    "sodu i potasu na zewnątrz komórki.",
+                    "sodu do wnętrza komórki, a jonów potasu na zewnątrz komórki.",
+                    "potasu do wnętrza komórki, a jonów sodu na zewnątrz komórki."
+                ],
+                correct: 2
+            },
+            {
+                question: "Która z wymienionych struktur układu nerwowego doprowadza bodźce do ciała komórki?",
+                options: [
+                    "Akson.",
+                    "Neuryt.",
+                    "Neuron.",
+                    "Dendryt."
+                ],
+                correct: 3
+            },
+            {
+                question: "Jak nazywa się narząd człowieka, który wytwarza enzymy trawienne i hormony, między innymi insulinę i glukagon?",
+                options: [
+                    "Wątroba.",
+                    "Trzustka.",
+                    "Śledziona.",
+                    "Dwunastnica."
+                ],
+                correct: 1
+            },
+            {
+                question: "Uszkodzenie układu piramidowego powoduje",
+                options: [
+                    "porażenie wiotkic.",
+                    "zniesienie siły mięśni.",
+                    "porażenie spastyczne.",
+                    "toniczne napięcie mięśni."
+                ],
+                correct: 2
+            },
+            {
+                question: "Który mięsień otoczony jest przez powięź piersiowo-lędźwiową?",
+                options: [
+                    "Czworoboczny grzbietu.",
+                    "Prostownik grzbietu.",
+                    "Najdłuższy grzbietu.",
+                    "Najszerszy grzbietu."
+                ],
+                correct: 1
+            },
+            {
+                question: "Masaż aromaterapeutyczny można wykonać u pacjenta po uprzednim",
+                options: [
+                    "określeniu jednostki chorobowej.",
+                    "wprowadzeniu olejków eterycznych do organizmu.",
+                    "wykluczeniu ewentualnych przeciwwskazań do masażu.",
+                    "rozgrzaniu organizmu i rozszerzeniu naczyń krwionośnych."
+                ],
+                correct: 2
+            },
+            {
+                question: "Przeciwwskazania do masażu segmentarnego obejmują",
+                options: [
+                    "bóle głowy pochodzenia neurogennego.",
+                    "kurczowe zwężenie żył odprowadzających.",
+                    "zaburzenia napięć ścian narządów wewnętrznych.",
+                    "ostre bakteryjne stany zapalne tkanek i narządów wewnętrznych."
+                ],
+                correct: 3
+            },
+            {
+                question: "Masaż segmentarny należy rozpocząć od opracowania",
+                options: [
+                    "mięśni przykręgosłupowych i mięśni grzbietu.",
+                    "kończyn dolnych, potylicy i głowy.",
+                    "miednicy i powłok brzusznych.",
+                    "klatki piersiowej i grzbietu."
+                ],
+                correct: 0
+            },
+            {
+                question: "Działanie miejscowe masażu segmentarnego polega na",
+                options: [
+                    "normalizacji czynności narządów wewnętrznych.",
+                    "wyrównaniu pobudliwości układu nerwowego.",
+                    "wzroście temperatury skóry.",
+                    "działaniu przeciwbólowym."
+                ],
+                correct: 2
+            },
+            {
+                question: "Pozycja do masażu u pacjenta z rozstrzeniem oskrzeli jest uzależniona od",
+                options: [
+                    "okresu choroby i stanu pacjenta.",
+                    "innych chorób współistniejących.",
+                    "zastosowanego leczenia farmakologicznego.",
+                    "segmentu, w którym toczy się proces chorobowy."
+                ],
+                correct: 3
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let showingResults = false;
+
+        function selectQuizSet(setIndex) {
+            document.querySelectorAll('.quiz-set').forEach((set, index) => {
+                set.classList.toggle('active', index === setIndex);
+            });
+            
+            if (setIndex === 0) {
+                currentQuestion = 0;
+                userAnswers = [];
+                showingResults = false;
+                displayQuestion();
+            }
+        }
+
+        function displayQuestion() {
+            const container = document.getElementById('question-container');
+            const question = quizData[currentQuestion];
+            
+            let answersHtml = '';
+            question.options.forEach((option, index) => {
+                const letter = String.fromCharCode(65 + index);
+                let classes = 'answer-option';
+                
+                if (showingResults) {
+                    if (index === question.correct) {
+                        classes += ' correct';
+                    } else if (userAnswers[currentQuestion] === index) {
+                        classes += ' incorrect';
+                    }
+                } else if (userAnswers[currentQuestion] === index) {
+                    classes += ' selected';
+                }
+                
+                answersHtml += `
+                    <div class="${classes}" onclick="selectAnswer(${index})">
+                        <div class="answer-letter">${letter}</div>
+                        <div>${option}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="question-number">Zadanie ${currentQuestion + 1}</div>
+                <div class="question-text">${question.question}</div>
+                <div class="answers">${answersHtml}</div>
+            `;
+
+            updateControls();
+        }
+
+        function selectAnswer(answerIndex) {
+            if (showingResults) return;
+            
+            userAnswers[currentQuestion] = answerIndex;
+            displayQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            } else if (!showingResults) {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function showResults() {
+            showingResults = true;
+            currentQuestion = 0;
+            displayQuestion();
+        }
+
+        function updateControls() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressInfo = document.getElementById('progress-info');
+
+            prevBtn.disabled = currentQuestion === 0;
+            prevBtn.style.opacity = currentQuestion === 0 ? '0.5' : '1';
+
+            if (showingResults) {
+                nextBtn.textContent = currentQuestion === quizData.length - 1 ? 'Zakończ' : 'Następne →';
+                progressInfo.textContent = `Wyniki - Pytanie ${currentQuestion + 1} z ${quizData.length}`;
+            } else {
+                nextBtn.textContent = currentQuestion === quizData.length - 1 ? 'Zobacz wyniki' : 'Następne →';
+                progressInfo.textContent = `Pytanie ${currentQuestion + 1} z ${quizData.length}`;
+            }
+        }
+
+        function openSettings() {
+            alert('Ustawienia - funkcjonalność w przygotowaniu!');
+        }
+
+        // Inicjalizacja
+        displayQuestion();
+    </script>
+</body>
+</html>
