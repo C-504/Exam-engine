@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -8,13 +9,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const createSupabaseServerClient = () =>
-  createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false
-    },
-    global: {
-      fetch
+  createServerComponentClient(
+    { cookies },
+    {
+      supabaseUrl,
+      supabaseKey: supabaseAnonKey
     }
-  });
+  );
 
 export type SupabaseServerClient = ReturnType<typeof createSupabaseServerClient>;

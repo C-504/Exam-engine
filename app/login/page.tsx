@@ -13,7 +13,7 @@ export default function LoginPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        router.replace('/home');
+        router.replace('/app/home');
       }
     });
 
@@ -21,7 +21,7 @@ export default function LoginPage() {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
-        router.replace('/home');
+        router.replace('/app/home');
       }
     });
 
@@ -31,35 +31,37 @@ export default function LoginPage() {
   }, [router, supabase]);
 
   return (
-    <section className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-16">
-      <div className="rounded-2xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/30 backdrop-blur">
-        <h1 className="text-2xl font-semibold text-white">Welcome back</h1>
-        <p className="mt-2 text-sm text-subtle">
-          Sign in with a magic link. We&apos;ll send it straight to your inbox.
-        </p>
-        <div className="mt-8">
-          <Auth
-            supabaseClient={supabase}
-            providers={[]}
-            view="magic_link"
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#6d28d9',
-                    brandAccent: '#8b5cf6',
-                    inputBackground: '#18181b',
-                    inputBorder: '#27272a',
-                    inputBorderHover: '#3f3f46'
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-16">
+      <section className="w-full max-w-md">
+        <div className="rounded-2xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/30 backdrop-blur">
+          <h1 className="text-2xl font-semibold text-white">Welcome back</h1>
+          <p className="mt-2 text-sm text-subtle">
+            Sign in with a magic link. We&apos;ll send it straight to your inbox.
+          </p>
+          <div className="mt-8">
+            <Auth
+              supabaseClient={supabase}
+              providers={[]}
+              view="magic_link"
+              appearance={{
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#6d28d9',
+                      brandAccent: '#8b5cf6',
+                      inputBackground: '#18181b',
+                      inputBorder: '#27272a',
+                      inputBorderHover: '#3f3f46'
+                    }
                   }
                 }
-              }
-            }}
-            magicLink
-          />
+              }}
+              magicLink
+            />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

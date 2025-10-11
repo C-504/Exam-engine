@@ -2,34 +2,66 @@ import Link from 'next/link';
 
 export default function LandingPage() {
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 py-16">
-      <div className="max-w-3xl space-y-8">
-        <p className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.2em] text-subtle">
-          Learn faster with focused quizzes
-        </p>
-        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Master any topic with adaptive quiz sessions tailored to your progress.
-        </h1>
-        <p className="max-w-2xl text-lg text-subtle">
-          StudyFlow turns questions into insights. Build streaks, revisit weak spots, and measure
-          improvement with detailed analytics—all powered by Supabase and tuned for speed on
-          Netlify.
-        </p>
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 text-base font-semibold text-white shadow-lg shadow-accent/40 transition hover:bg-accent-light"
-          >
-            Start learning
-          </Link>
-          <Link
-            href="/home"
-            className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
-          >
-            Explore dashboard
-          </Link>
+    <div className="flex min-h-screen flex-col bg-canvas">
+      <header className="border-b border-white/10 backdrop-blur">
+        <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
+          <div className="text-lg font-semibold tracking-tight">
+            <span className="text-white">Study</span>
+            <span className="text-accent">Flow</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="rounded-full border border-accent/40 bg-accent/10 px-5 py-2 text-sm font-medium text-white transition hover:border-accent hover:bg-accent"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/app/home"
+              className="rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white transition hover:border-white/40 hover:bg-white/5"
+            >
+              Dashboard
+            </Link>
+          </div>
+        </nav>
+      </header>
+      <main className="flex flex-1 items-center">
+        <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 py-16">
+          <div className="max-w-3xl space-y-8">
+            <p className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.2em] text-subtle">
+              Learn faster with focused quizzes
+            </p>
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Master any topic with adaptive quiz sessions tailored to your progress.
+            </h1>
+            <p className="max-w-2xl text-lg text-subtle">
+              StudyFlow turns questions into insights. Build streaks, revisit weak spots, and
+              measure improvement with detailed analytics - all powered by Supabase and tuned for
+              speed on Netlify.
+            </p>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-full bg-accent px-8 py-3 text-base font-semibold text-white shadow-lg shadow-accent/40 transition hover:bg-accent-light"
+              >
+                Start learning
+              </Link>
+              <Link
+                href="/app/home"
+                className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
+              >
+                Explore dashboard
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 text-xs text-subtle">
+          <p>&copy; {new Date().getFullYear()} StudyFlow. All rights reserved.</p>
+          <p>Built with Next.js, Supabase, and Netlify.</p>
         </div>
-      </div>
-    </section>
+      </footer>
+    </div>
   );
 }
