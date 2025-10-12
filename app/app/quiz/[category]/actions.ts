@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireAuth } from '@/lib/auth';
-import { createSupabaseServerClient } from '@/lib/supabaseServer';
+import { createSupabaseServerActionClient } from '@/lib/supabaseServer';
 import { validateAnswer } from '@/lib/quiz/answerValidator';
 
 export type SubmitAnswerInput = {
@@ -39,7 +39,7 @@ export async function submitAnswerAction({
   }
 
   const { user } = await requireAuth();
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabaseServerActionClient();
 
   const { data: sessionRow, error: sessionError } = await supabase
     .from('quiz_sessions')

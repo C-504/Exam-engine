@@ -9,16 +9,27 @@ type AuthContext = {
 
 export async function requireAuth(): Promise<AuthContext> {
   const supabase = createSupabaseServerClient();
+
   const {
-    data: { session }
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect('/login');
+  }
+
+  const {
+    data: { session },
+    error: sessionError
   } = await supabase.auth.getSession();
 
-  if (!session?.user) {
+  if (sessionError || !session) {
     redirect('/login');
   }
 
   return {
     session,
-    user: session.user
+    user
   };
 }

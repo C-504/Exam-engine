@@ -1,8 +1,19 @@
+"use client";
+
 import type { ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import UserMenu from './UserMenu';
 
-const sections = ['Quiz Set', 'Mathematics', 'History', 'Science', 'Literature', 'Geography'];
+const sections = [
+  { label: 'Quiz Set', href: '/app/home' },
+  { label: 'Mathematics', href: '/app/quiz/mathematics' },
+  { label: 'History', href: '/app/quiz/history' },
+  { label: 'Science', href: '/app/quiz/science' },
+  { label: 'Literature', href: '/app/quiz/literature' },
+  { label: 'Geography', href: '/app/quiz/geography' }
+];
 
 type AppShellProps = {
   children: ReactNode;
@@ -10,6 +21,8 @@ type AppShellProps = {
 };
 
 export default function AppShell({ children, user }: AppShellProps) {
+  const pathname = usePathname();
+
   return (
     <div className="flex min-h-screen bg-canvas text-zinc-100">
       <aside className="hidden w-64 border-r border-white/10 bg-surface/80 px-6 py-8 shadow-2xl shadow-black/30 backdrop-blur lg:flex lg:flex-col">
@@ -18,20 +31,37 @@ export default function AppShell({ children, user }: AppShellProps) {
           <span className="text-accent">Flow</span>
         </div>
         <nav className="space-y-2 text-sm font-medium text-subtle">
-          {sections.map((section, index) => (
-            <button
-              key={section}
-              type="button"
-              className={`flex w-full items-center justify-start rounded-lg px-3 py-2 transition ${
-                index === 0
-                  ? 'bg-accent text-white shadow-lg shadow-accent/40'
-                  : 'hover:bg-white/5 hover:text-white'
-              }`}
-              aria-current={index === 0 ? 'page' : undefined}
-            >
-              {section}
-            </button>
-          ))}
+          {sections.map((section) => {
+            const isActive =
+              pathname === section.href ||
+              (section.href !== '/app/home' && pathname.startsWith(section.href));
+
+            return (
+              <Link
+                key={section.href}
+                href={section.href}
+                className={`flex w-full items-center justify-start rounded-lg px-3 py-2 transition ${
+                  isActive
+                    ? 'bg-accent text-white shadow-lg shadow-accent/40'
+                    : 'hover:bg-white/5 hover:text-white'
+                }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {section.label}
+              </Link>
+            );
+          })}
+          <Link
+            href="/app/quiz/all"
+            className={`flex w-full items-center justify-start rounded-lg px-3 py-2 transition ${
+              pathname === '/app/quiz/all'
+                ? 'bg-accent text-white shadow-lg shadow-accent/40'
+                : 'hover:bg-white/5 hover:text-white'
+            }`}
+            aria-current={pathname === '/app/quiz/all' ? 'page' : undefined}
+          >
+            All Topics
+          </Link>
         </nav>
       </aside>
       <div className="flex flex-1 flex-col">

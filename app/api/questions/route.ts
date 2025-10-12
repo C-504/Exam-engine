@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabaseServer';
+import { createSupabaseRouteClient } from '@/lib/supabaseServer';
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 20;
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
     }
 
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabaseRouteClient();
 
     const query = supabase
       .from('questions')
@@ -56,10 +56,12 @@ export async function GET(request: Request) {
       .eq('is_active', true);
 
     if (categoryParam) {
-    query.eq('category', categoryParam);
-  }
+      query.eq('category', categoryParam);
+    }
 
-    const responsePromise = query.order('random').limit(limit);
+    const responsePromise = query
+      .order('created_at', { ascending: false })
+      .limit(limit * 5);
 
     const { data, error } = await withTimeout(responsePromise, TIMEOUT_MS);
 
@@ -67,14 +69,17 @@ export async function GET(request: Request) {
       throw error;
     }
 
-    const sanitized = (data ?? []).map<Question>((row: QuestionRow) => ({
-      id: row.id,
-      category: row.category,
-      prompt: row.prompt,
-      options: Array.isArray(row.options) ? row.options : []
-    }));
+    const randomized = (data ?? [])
+      .map<Question>((row: QuestionRow) => ({
+        id: row.id,
+        category: row.category,
+        prompt: row.prompt,
+        options: Array.isArray(row.options) ? row.options : []
+      }))
+      .sort(() => Math.random() - 0.5)
+      .slice(0, limit);
 
-    return NextResponse.json({ items: sanitized });
+    return NextResponse.json({ items: randomized });
   } catch (error) {
     if (error instanceof Error && error.message.includes('timed out')) {
       return NextResponse.json({ error: error.message }, { status: 504 });
