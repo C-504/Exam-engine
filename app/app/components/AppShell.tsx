@@ -12,7 +12,8 @@ const sections = [
   { label: 'History', href: '/app/quiz/history' },
   { label: 'Science', href: '/app/quiz/science' },
   { label: 'Literature', href: '/app/quiz/literature' },
-  { label: 'Geography', href: '/app/quiz/geography' }
+  { label: 'Geography', href: '/app/quiz/geography' },
+  { label: 'My Results', href: '/app/results' }
 ];
 
 type AppShellProps = {
