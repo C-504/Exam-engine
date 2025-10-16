@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { PostgrestError } from '@supabase/supabase-js';
 import { createSupabaseRouteClient } from '@/lib/supabaseServer';
 
 const DEFAULT_LIMIT = 10;
@@ -17,6 +18,11 @@ type Question = {
   category: string;
   prompt: string;
   options: string[];
+};
+
+type QuestionsResponse = {
+  data: QuestionRow[] | null;
+  error: PostgrestError | null;
 };
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
@@ -59,11 +65,10 @@ export async function GET(request: Request) {
       query.eq('category', categoryParam);
     }
 
-    const responsePromise = query
-      .order('created_at', { ascending: false })
-      .limit(limit * 5);
-
-    const { data, error } = await withTimeout(responsePromise, TIMEOUT_MS);
+    const { data, error } = await withTimeout<QuestionsResponse>(
+      query.order('created_at', { ascending: false }).limit(limit * 5),
+      TIMEOUT_MS
+    );
 
     if (error) {
       throw error;
