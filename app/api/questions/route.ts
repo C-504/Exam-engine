@@ -25,7 +25,7 @@ type QuestionsResponse = {
   error: PostgrestError | null;
 };
 
-const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+const withTimeout = async <T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> => {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   try {
@@ -35,7 +35,7 @@ const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T
       }, timeoutMs);
     });
 
-    return await Promise.race([promise, timeoutPromise]);
+    return await Promise.race([Promise.resolve(promise), timeoutPromise]);
   } finally {
     if (timer) {
       clearTimeout(timer);
