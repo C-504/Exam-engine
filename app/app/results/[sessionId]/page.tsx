@@ -9,17 +9,23 @@ type SessionParams = {
   };
 };
 
-type AnswerRow = {
+type QuestionRelation = {
+  prompt: string;
+  options: string[] | null;
+  correct_index: number | null;
+  category: string | null;
+};
+
+type RawAnswerRow = {
   id: string;
-  chosen_index: number;
+  chosen_index: number | null;
   is_correct: boolean | null;
   answered_at: string | null;
-  questions: {
-    prompt: string;
-    options: string[] | null;
-    correct_index: number;
-    category: string | null;
-  } | null;
+  questions: QuestionRelation | QuestionRelation[] | null;
+};
+
+type AnswerRow = Omit<RawAnswerRow, 'questions'> & {
+  questions: QuestionRelation | null;
 };
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -67,7 +73,10 @@ export default async function ResultsDetailPage({ params }: SessionParams) {
     throw new Error('Unable to load quiz details.');
   }
 
-  const castAnswers = (answers ?? []) as AnswerRow[];
+  const castAnswers: AnswerRow[] = ((answers ?? []) as RawAnswerRow[]).map((answer) => ({
+    ...answer,
+    questions: Array.isArray(answer.questions) ? answer.questions?.[0] ?? null : answer.questions ?? null
+  }));
   const total = castAnswers.length;
   const correct = castAnswers.filter((answer) => answer.is_correct === true).length;
 
