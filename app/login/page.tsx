@@ -8,6 +8,13 @@ import { createSupabaseBrowserClient } from '@/lib/supabaseBrowser';
 
 export default function LoginPage() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const redirectTo = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return '/app/home';
+    }
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+    return `${baseUrl}/app/home`;
+  }, []);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,6 +50,7 @@ export default function LoginPage() {
               supabaseClient={supabase}
               providers={[]}
               view="magic_link"
+              redirectTo={redirectTo}
               appearance={{
                 theme: ThemeSupa,
                 variables: {
