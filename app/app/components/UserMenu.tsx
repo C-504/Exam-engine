@@ -5,9 +5,11 @@ import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabaseBrowser';
+import type { Profile } from '@/lib/auth';
 
 type UserMenuProps = {
   user: User;
+  profile: Profile;
 };
 
 const getInitials = (user: User) => {
@@ -18,12 +20,13 @@ const getInitials = (user: User) => {
   return `${initialA}${initialB}`.toUpperCase();
 };
 
-export default function UserMenu({ user }: UserMenuProps) {
+export default function UserMenu({ user, profile }: UserMenuProps) {
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const initials = getInitials(user);
+  const isSuperuser = profile.role === 'superuser' || profile.role === 'admin';
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -70,6 +73,26 @@ export default function UserMenu({ user }: UserMenuProps) {
           className="absolute right-0 mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-surface/95 shadow-xl shadow-black/40 backdrop-blur"
           role="menu"
         >
+          {isSuperuser ? (
+            <>
+              <Link
+                href="/app/user-management"
+                className="block px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+              >
+                User Management
+              </Link>
+              <Link
+                href="/app/user-management"
+                className="block px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+              >
+                Admin Dashboard
+              </Link>
+            </>
+          ) : null}
           <Link
             href="/app/settings"
             className="block px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"

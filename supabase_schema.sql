@@ -6,7 +6,7 @@ create table if not exists public.profiles (
     id uuid primary key references auth.users (id) on delete cascade,
     full_name text,
     avatar_url text,
-    role text not null check (role in ('user', 'admin')) default 'user',
+    role text not null check (role in ('user', 'admin', 'superuser')) default 'user',
     created_at timestamptz not null default now()
 );
 
@@ -48,7 +48,7 @@ create index if not exists idx_quiz_sessions_user_id on public.quiz_sessions (us
 create index if not exists idx_quiz_answers_session_id on public.quiz_answers (session_id);
 create index if not exists idx_quiz_answers_question_id on public.quiz_answers (question_id);
 
-create or replace function public.current_user_is_admin()
+create or replace function public.current_user_is_superuser()
 returns boolean
 language sql
 stable
@@ -57,7 +57,7 @@ as $$
         select 1
         from public.profiles p
         where p.id = auth.uid()
-          and p.role = 'admin'
+          and p.role in ('superuser', 'admin')
     );
 $$;
 
@@ -66,17 +66,17 @@ returns trigger
 language plpgsql
 as $$
 declare
-    requester_is_admin boolean;
+    requester_is_superuser boolean;
 begin
     if new.role is distinct from old.role then
         if auth.uid() is null then
-            requester_is_admin := true;
+            requester_is_superuser := true;
         else
-            requester_is_admin := public.current_user_is_admin();
+            requester_is_superuser := public.current_user_is_superuser();
         end if;
 
-        if requester_is_admin is not true then
-            raise exception 'Only admins can change profile roles.';
+        if requester_is_superuser is not true then
+            raise exception 'Only superusers can change profile roles.';
         end if;
     end if;
 
@@ -105,6 +105,12 @@ create policy select_own_profile on public.profiles
     to authenticated
     using (auth.uid() = id);
 
+drop policy if exists insert_own_profile on public.profiles;
+create policy insert_own_profile on public.profiles
+    for insert
+    to authenticated
+    with check (auth.uid() = id);
+
 drop policy if exists update_own_profile on public.profiles;
 create policy update_own_profile on public.profiles
     for update
@@ -116,8 +122,8 @@ drop policy if exists admin_manage_profiles on public.profiles;
 create policy admin_manage_profiles on public.profiles
     for all
     to authenticated
-    using (public.current_user_is_admin())
-    with check (public.current_user_is_admin() or role = 'user');
+    using (public.current_user_is_superuser())
+    with check (public.current_user_is_superuser() or role = 'user');
 
 drop policy if exists select_active_questions on public.questions;
 create policy select_active_questions on public.questions
@@ -129,8 +135,8 @@ drop policy if exists admin_all_questions on public.questions;
 create policy admin_all_questions on public.questions
     for all
     to authenticated
-    using (public.current_user_is_admin())
-    with check (public.current_user_is_admin());
+    using (public.current_user_is_superuser())
+    with check (public.current_user_is_superuser());
 
 drop policy if exists manage_own_quiz_sessions on public.quiz_sessions;
 create policy manage_own_quiz_sessions on public.quiz_sessions
@@ -143,7 +149,7 @@ drop policy if exists admin_read_quiz_sessions on public.quiz_sessions;
 create policy admin_read_quiz_sessions on public.quiz_sessions
     for select
     to authenticated
-    using (public.current_user_is_admin());
+    using (public.current_user_is_superuser());
 
 drop policy if exists manage_own_quiz_answers on public.quiz_answers;
 create policy manage_own_quiz_answers on public.quiz_answers
@@ -170,7 +176,7 @@ drop policy if exists admin_read_quiz_answers on public.quiz_answers;
 create policy admin_read_quiz_answers on public.quiz_answers
     for select
     to authenticated
-    using (public.current_user_is_admin());
+    using (public.current_user_is_superuser());
 
 grant usage on schema public to authenticated, anon;
 grant select, update on public.profiles to authenticated;
@@ -205,5 +211,12 @@ insert into public.questions (category, prompt, options, correct_index, is_activ
 select s.category, s.prompt, s.options, s.correct_index, s.is_active
 from seed_questions s
 where not exists (select 1 from public.questions);
+
+-- To promote seeded admins to superuser run this once in Supabase SQL editor:
+-- update public.profiles p
+-- set role = 'superuser'
+-- from auth.users u
+-- where p.id = u.id
+--   and u.email in ('examengine2025@gmail.com', 'sysdrummatic@gmail.com');
 
 commit;

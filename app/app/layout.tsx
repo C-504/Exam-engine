@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/auth';
 import AppShell from './components/AppShell';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const { user } = await requireAuth();
+  const { user, profile } = await requireAuth();
 
-  return <AppShell user={user}>{children}</AppShell>;
+  return <AppShell user={user} profile={profile}>{children}</AppShell>;
 }

@@ -1,28 +1,47 @@
-"use client";
+'use client';
 
 import type { ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import UserMenu from './UserMenu';
+import type { Profile } from '@/lib/auth';
 
-const sections = [
+const baseSections = [
   { label: 'Quiz Set', href: '/app/home' },
   { label: 'Mathematics', href: '/app/quiz/mathematics' },
   { label: 'History', href: '/app/quiz/history' },
   { label: 'Science', href: '/app/quiz/science' },
   { label: 'Literature', href: '/app/quiz/literature' },
   { label: 'Geography', href: '/app/quiz/geography' },
+  { label: 'All Topics', href: '/app/quiz/all' },
   { label: 'My Results', href: '/app/results' }
 ];
 
 type AppShellProps = {
   children: ReactNode;
   user: User;
+  profile: Profile;
 };
 
-export default function AppShell({ children, user }: AppShellProps) {
+export default function AppShell({ children, user, profile }: AppShellProps) {
+  const isSuperuser = profile.role === 'superuser' || profile.role === 'admin';
+  const sections = isSuperuser
+    ? [
+        ...baseSections,
+        { label: 'User Management', href: '/app/user-management' }
+      ]
+    : baseSections;
   const pathname = usePathname();
+
+  const activeSection =
+    sections.find((section) => {
+      if (section.href === '/app/home') {
+        return pathname === section.href;
+      }
+
+      return pathname === section.href || pathname.startsWith(`${section.href}/`);
+    }) ?? sections[0];
 
   return (
     <div className="flex min-h-screen bg-canvas text-zinc-100">
@@ -52,23 +71,12 @@ export default function AppShell({ children, user }: AppShellProps) {
               </Link>
             );
           })}
-          <Link
-            href="/app/quiz/all"
-            className={`flex w-full items-center justify-start rounded-lg px-3 py-2 transition ${
-              pathname === '/app/quiz/all'
-                ? 'bg-accent text-white shadow-lg shadow-accent/40'
-                : 'hover:bg-white/5 hover:text-white'
-            }`}
-            aria-current={pathname === '/app/quiz/all' ? 'page' : undefined}
-          >
-            All Topics
-          </Link>
         </nav>
       </aside>
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-white/10 px-6 py-4 backdrop-blur">
-          <h1 className="text-xl font-semibold text-white">Quiz Set</h1>
-          <UserMenu user={user} />
+          <h1 className="text-xl font-semibold text-white">{activeSection.label}</h1>
+          <UserMenu user={user} profile={profile} />
         </header>
         <main className="flex-1 bg-canvas px-6 py-10">
           <div className="mx-auto flex max-w-5xl flex-col gap-6">{children}</div>
