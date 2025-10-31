@@ -116,7 +116,8 @@ supabase_schema.sql          # Database schema + seed
    - **Build command**: `npm run build`
    - **Publish directory**: `.next`
 3. Add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` as environment variables in Netlify.
-4. Deploy. Update Supabase auth redirect URLs with the Netlify domain if you haven’t yet.
+   - Optional but recommended: add `SECRETS_SCAN_OMIT_KEYS="NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"` so Netlify’s secrets scan doesn’t block builds on these public values.
+4. Deploy. Update Supabase auth redirect URLs with the Netlify domain if you haven't yet.
 
 ## Supabase Schema Highlights
 
